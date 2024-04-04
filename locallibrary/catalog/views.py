@@ -25,3 +25,29 @@ def index(request):
 
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+
+from django.views import generic
+
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Book.objects.filter(title__icontains='war')[:5]
+    
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super(BookListView, self).get_context_data(**kwargs)
+        # Create any data and add it to the context
+        context['some_data'] = 'This is just some data'
+        return context
+    
+class BookDetailView(generic.DetailView):
+    model = Book
+    
+    
+from django.shortcuts import get_object_or_404
+
+def book_detail_view(request, primary_key):
+    book = get_object_or_404(Book, pk=primary_key)
+    return render(request, 'catalog/book_detail.html', context={'book': book})
